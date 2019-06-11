@@ -1,0 +1,63 @@
+apiVersion: v2
+kind: Service
+metadata:
+  name: drupal
+  labels:
+    app: drupal
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30180
+  selector:
+    app: drupal
+    tier: frontend
+  type: NodePort
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: drupal-lv-claim
+  labels:
+    app: drupal
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: drupal
+  labels:
+    app: drupal
+spec:
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: drupal
+        tier: frontend
+    spec:
+      containers:
+      - image: drupal:latest
+        name: drupal
+        env:
+        - name: MYSQL_USER
+          value: admin
+        - name: MYSQL_DATABASE
+          value: drupal-database
+        ports:
+        - containerPort: 80
+          name: drupal
+        volumeMounts:
+        - name: drupal-local-storage
+          mountPath: /var/www/html
+      volumes:
+      - name: drupal-local-storage
+        persistentVolumeClaim:
+          claimName: drupal-lv-claim
