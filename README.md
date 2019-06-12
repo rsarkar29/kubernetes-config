@@ -1,3 +1,5 @@
+![alt text](https://kubernetes.io/images/kubernetes-horizontal-color.png)
+
 # How to easily deploy a Drupal instance on Kubernetes using YAML
 
 ## Preparing the data persistence infrastructure
